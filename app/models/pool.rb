@@ -23,6 +23,8 @@ class Pool < ActiveRecord::Base
   alias_method :provider_id, :cp_provider_id
   alias_method :provider_id=, :cp_provider_id=
 
+  DAYS_EXPIRING_SOON = 120
+
   # ActivationKey includes the Pool's json in its own'
   def as_json(*args)
     self.remote_data.merge(:cp_id => self.cp_id)
@@ -33,5 +35,17 @@ class Pool < ActiveRecord::Base
   def self.find_pool(cp_id, pool_json = nil)
     pool_json = Resources::Candlepin::Pool.find(cp_id) if !pool_json
     ::Pool.new(pool_json) if !pool_json.nil?
+  end
+
+  def self.all_active(subscriptions)
+    subscriptions.select { |s| s.active }
+  end
+
+  def self.all_expiring_soon(subscriptions)
+    subscriptions.select { |s| (s.end_date - DateTime.now.to_date) <= DAYS_EXPIRING_SOON }
+  end
+
+  def self.all_expired(subscriptions)
+    subscriptions.select { |s| DateTime.now.to_date >= s.end_date }
   end
 end
