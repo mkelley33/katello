@@ -17,7 +17,7 @@ FactoryGirl.define do
     end
 
     trait :expiring_soon do
-      end_date DateTime.now.to_date + 119
+      end_date DateTime.now.to_date + 120
     end
 
     trait :not_expiring_soon do

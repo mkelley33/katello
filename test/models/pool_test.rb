@@ -29,5 +29,13 @@ class PoolTest < MiniTest::Rails::ActiveSupport::TestCase
     expiring_soon_subscriptions = Pool.all_expiring_soon(all_subscriptions)
     assert_equal expiring_soon_subscriptions, all_subscriptions - [not_expiring_soon]
   end
+
+  def test_all_expired_subscriptions
+    unexpired = FactoryGirl.build(:pool, :unexpired)
+    expired = FactoryGirl.build(:pool, :expired)
+    all_subscriptions = [unexpired, expired]
+    expired_subscriptions = Pool.all_expired(all_subscriptions)
+    assert_equal expired_subscriptions, all_subscriptions - [unexpired]
+  end
 end
 
