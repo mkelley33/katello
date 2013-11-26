@@ -10,19 +10,24 @@
 # have received a copy of GPLv2 along with this software; if not, see
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 
+require 'minitest_helper'
+
 class PoolTest < MiniTest::Rails::ActiveSupport::TestCase
 
-  def self.before_suite
-    #services = ["Candlepin", "Pulp", "ElasticSearch"]
-    #disable_glue_layers(services, models)
-  end
-
-  def test_all_active_subscriptions
+  def test_all_active_subslriptions
     active_pool = FactoryGirl.build(:pool, :active)
     inactive_pool = FactoryGirl.build(:pool, :inactive)
     all_subscriptions = [active_pool, inactive_pool]
     active_subscriptions = Pool.all_active(all_subscriptions)
-    assert_equal active_subscriptions, all_subscriptions - inactive_pool
+    assert_equal active_subscriptions, all_subscriptions - [inactive_pool]
+  end
+
+  def test_all_expiring_soon_subscriptions
+    not_expiring_soon = FactoryGirl.build(:pool, :not_expiring_soon)
+    expiring_soon_pool = FactoryGirl.build(:pool, :expiring_soon)
+    all_subscriptions = [not_expiring_soon, expiring_soon_pool]
+    expiring_soon_subscriptions = Pool.all_expiring_soon(all_subscriptions)
+    assert_equal expiring_soon_subscriptions, all_subscriptions - [not_expiring_soon]
   end
 end
 

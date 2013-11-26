@@ -1,7 +1,5 @@
 FactoryGirl.define do
   factory :pool do
-    sequence(:name) { |n| "Pool #{n}" }
-
     trait :active do
       active true
     end
@@ -23,7 +21,7 @@ FactoryGirl.define do
     end
 
     trait :not_expiring_soon do
-      end_date DateTime.now.to_date + 120
+      end_date DateTime.now.to_date + 121
     end
   end
 end
