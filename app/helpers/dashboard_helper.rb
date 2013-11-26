@@ -197,13 +197,18 @@ module DashboardHelper
     output.html_safe
   end
 
+  def has_dropbutton_quantity(widget_name)
+    !(['subscriptions_totals', 'subscriptions'].include? widget_name)
+  end
+
   def render_column(column)
     output = ""
     column.each do |widget|
+      has_dropbutton = has_dropbutton_quantity(widget.name)
       if widget.content_path
-        output += dashboard_ajax_entry(widget.title, widget.name, widget.content_path, "widget", true)
+        output += dashboard_ajax_entry(widget.title, widget.name, widget.content_path, "widget", has_dropbutton)
       else
-        output += dashboard_entry(widget.title, widget.name, false)
+        output += dashboard_entry(widget.title, widget.name, has_dropbutton)
       end
     end
     output.html_safe
