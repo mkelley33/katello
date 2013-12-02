@@ -75,10 +75,10 @@ class DashboardController < ApplicationController
     subscriptions = current_organization.redhat_provider.index_subscriptions
 
     render :partial => "subscriptions_totals", :locals => {
-      :quantity => quantity,
-      :total_active_subscriptions => Pool.all_active(subscriptions).count,
-      :total_expiring_subscriptions => Pool.all_expiring_soon(subscriptions).count,
-      :total_expired_subscriptions => Pool.all_expired(subscriptions).count
+      :quantity                             => nil,
+      :total_active_subscriptions           => Pool.active(subscriptions).count,
+      :total_expiring_subscriptions         => Pool.expiring_soon(subscriptions).count,
+      :total_recently_expired_subscriptions => Pool.recently_expired(subscriptions).count
     }
   end
 

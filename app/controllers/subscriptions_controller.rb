@@ -66,7 +66,6 @@ class SubscriptionsController < ApplicationController
     render :index
   end
 
-  # TODO: remove this method and route since nutupane (experimental mode) uses the api method subscriptions_controller#organization_index
   def items
     query_string = params[:search]
     offset = params[:offset].to_i || 0
@@ -75,6 +74,10 @@ class SubscriptionsController < ApplicationController
     # Limit subscriptions to current org and Red Hat provider
     filters << {:term => {:org => current_organization.label}}
     filters << {:term => {:provider_id => current_organization.redhat_provider.id}}
+    # Date range filters for expiration. These are few and don't fit into search dropdown
+    # capabilities so for now get name of expiration filter from querystring.
+    filters << Pool.expiration_filter(params[:expiration_filter])
+    filters.compact!
 
     options = {
         :filters => filters,

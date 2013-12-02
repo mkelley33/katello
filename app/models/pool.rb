@@ -24,6 +24,7 @@ class Pool < ActiveRecord::Base
   alias_method :provider_id=, :cp_provider_id=
 
   DAYS_EXPIRING_SOON = 120
+  DAYS_RECENTLY_EXPIRED = 30
 
   # ActivationKey includes the Pool's json in its own'
   def as_json(*args)
@@ -37,15 +38,23 @@ class Pool < ActiveRecord::Base
     ::Pool.new(pool_json) if !pool_json.nil?
   end
 
-  def self.all_active(subscriptions)
+  # Convert active, expiring_soon, and recently_expired into elasticsearch
+  # filters and move implementation into ES pool module if performance becomes
+  # an issue (though I doubt it will--just sayin')
+  def self.active(subscriptions)
     subscriptions.select { |s| s.active }
   end
 
-  def self.all_expiring_soon(subscriptions)
-    subscriptions.select { |s| (s.end_date - DateTime.now.to_date) <= DAYS_EXPIRING_SOON }
+  def self.expiring_soon(subscriptions)
+    subscriptions.select { |s| (s.end_date - Date.today) <= DAYS_EXPIRING_SOON }
   end
 
-  def self.all_expired(subscriptions)
-    subscriptions.select { |s| DateTime.now.to_date >= s.end_date }
+  def self.recently_expired(subscriptions)
+    today_date = Date.today
+
+    subscriptions.select do |s|
+      end_date = s.end_date
+      today_date >= end_date && today_date - end_date <= DAYS_RECENTLY_EXPIRED
+    end
   end
 end

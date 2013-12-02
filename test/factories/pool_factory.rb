@@ -9,19 +9,27 @@ FactoryGirl.define do
     end
 
     trait :unexpired do
-      end_date DateTime.now.to_date + 1.days
+      end_date Date.today + 1.days
     end
 
     trait :expired do
-      end_date DateTime.now.to_date
+      end_date Date.today
     end
 
     trait :expiring_soon do
-      end_date DateTime.now.to_date + 120
+      end_date Date.today + Pool::DAYS_EXPIRING_SOON
     end
 
     trait :not_expiring_soon do
-      end_date DateTime.now.to_date + 121
+      end_date Date.today + Pool::DAYS_EXPIRING_SOON + 1
+    end
+
+    trait :recently_expired do
+      end_date Date.today - Pool::DAYS_RECENTLY_EXPIRED
+    end
+
+    trait :long_expired do
+      end_date Date.today - Pool::DAYS_RECENTLY_EXPIRED - 1
     end
   end
 end
