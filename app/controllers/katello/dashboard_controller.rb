@@ -83,6 +83,10 @@ class DashboardController < ApplicationController
     }
   end
 
+  def utilization
+    render :partial => "utilization", :locals => {:quantity => quantity}
+  end
+
   def notices
     render :partial => "notices", :locals => {:quantity => quantity}
   end

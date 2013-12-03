@@ -22,7 +22,7 @@ module Katello
     end
 
     def content_path
-      subscription_management_utilization_dashboard_index_path
+      utilization_dashboard_index_path
     end
 
   end
