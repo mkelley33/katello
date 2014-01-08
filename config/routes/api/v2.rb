@@ -35,6 +35,7 @@ Katello::Engine.routes.draw do
           post :cancel_repo_discover
           post :autoattach_subscriptions
         end
+        api_resources :products, :only => [:index, :show, :create, :update, :destroy]
         api_resources :system_groups, :only => [:index, :create]
         api_resources :systems, :only => system_onlies do
           get :report, :on => :collection
@@ -58,6 +59,8 @@ Katello::Engine.routes.draw do
 
       api_resources :ping, :only => [:index]
       match "/status" => "ping#server_status", :via => :get
+
+      api_resources :products, :only => [:index, :show, :create, :update, :destroy]
 
       api_resources :system_groups, :only => system_onlies do
         member do
