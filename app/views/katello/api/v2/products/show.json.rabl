@@ -12,16 +12,15 @@ attributes :gpg_key_id
 attributes :productContent
 
 node :repository_count do |product|
-  product.repositories.enabled.count
+  if product.repositories.to_a.any?
+    product.repositories.enabled.count
+  else
+    0
+  end
 end
 
-node :gpg_key do |product|
-  if !product.gpg_key.nil?
-    {
-      id: product.gpg_key.id,
-      name: product.gpg_key.name
-    }
-  end
+node(:gpg_key, :unless => lambda { |product| product.gpg_key.nil? }) do |product|
+  {:id => product.gpg_key.id, :name => product.gpg_key.name}
 end
 
 child :provider do
