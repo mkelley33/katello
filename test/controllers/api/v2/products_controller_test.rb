@@ -18,7 +18,7 @@ class Api::V2::ProductsControllerTest < ActionController::TestCase
 
   def self.before_suite
     models = ["Product"]
-    disable_glue_layers(["Candlepin", "Pulp", "ElasticSearch"], models)
+    disable_glue_layers(%w(Candlepin Pulp ElasticSearch), models)
     super
   end
 
