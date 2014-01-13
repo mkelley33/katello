@@ -52,7 +52,7 @@ Katello::Engine.routes.draw do
           post :import_manifest
           post :product_create
           get :products
-          post :refresh_manifest
+          put :refresh_manifest
           put :refresh_products
         end
       end
