@@ -14,9 +14,8 @@ module Katello
 class Api::V2::ProvidersController < Api::V2::ApiController
 
   before_filter :find_organization, :only => [:index, :create]
-  before_filter :find_provider, :only => [:show, :update, :destroy, :products, :import_products,
-                                          :refresh_products, :import_manifest, :delete_manifest, :product_create,
-                                          :refresh_manifest]
+  before_filter :find_provider, :only => [:show, :update, :destroy, :products, :import_products, :refresh_products,
+                                          :import_manifest, :delete_manifest, :product_create, :refresh_manifest]
   before_filter :authorize
 
   def rules
