@@ -19,13 +19,8 @@ node :repository_count do |product|
   end
 end
 
-node :gpg_key do |product|
-  if product.gpg_key.present?
-    {
-      id: product.gpg_key.id,
-      name: product.gpg_key.name
-    }
-  end
+node(:gpg_key, :unless => lambda { |product| product.gpg_key.nil? }) do |product|
+  {:id => product.gpg_key.id, :name => product.gpg_key.name}
 end
 
 child :provider do

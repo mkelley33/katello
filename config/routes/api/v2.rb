@@ -35,7 +35,8 @@ Katello::Engine.routes.draw do
           post :cancel_repo_discover
           post :autoattach_subscriptions
         end
-        api_resources :products, :only => [:index, :show, :create, :update, :destroy]
+        api_resources :products, :only => [:index]
+        api_resources :providers, :only => [:index]
         api_resources :system_groups, :only => [:index, :create]
         api_resources :systems, :only => system_onlies do
           get :report, :on => :collection
@@ -43,8 +44,12 @@ Katello::Engine.routes.draw do
         scope :constraints => Katello::RegisterWithActivationKeyContraint.new do
           match '/systems' => 'systems#activate', :via => :post
         end
-        api_resources :providers, :only => [:index]
       end
+
+      api_resources :ping, :only => [:index]
+      match "/status" => "ping#server_status", :via => :get
+
+      api_resources :products, :only => [:index, :show, :create, :update, :destroy]
 
       api_resources :providers, :only => [:index, :create, :show, :destroy, :update] do
         member do
@@ -56,11 +61,6 @@ Katello::Engine.routes.draw do
           put :refresh_products
         end
       end
-
-      api_resources :ping, :only => [:index]
-      match "/status" => "ping#server_status", :via => :get
-
-      api_resources :products, :only => [:index, :show, :create, :update, :destroy]
 
       api_resources :system_groups, :only => system_onlies do
         member do

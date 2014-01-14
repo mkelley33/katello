@@ -90,18 +90,12 @@ class Api::V2::ProductsControllerTest < ActionController::TestCase
 
   def test_create_fail_without_product
     post :create, {:organization_id => @organization.label}
-    # provider_id is required to check if user can update providers.
-    # if not, then cryptic 500 given:
-    #["{\"displayMessage\":\"undefined method `[]' for nil:NilClass\",\"errors\":[\"undefined method `[]' for nil:NilClass\"]}"],
-    assert_response :internal_server_error
+    assert_response :bad_request
   end
 
   def test_create_fail_with_empty_product
     post :create, {:product => {}, :organization_id => @organization.label}
-    # provider_id is required to check if user can update providers.
-    # if not, then cryptic 500 given:
-    #["{\"displayMessage\":\"undefined method `[]' for nil:NilClass\",\"errors\":[\"undefined method `[]' for nil:NilClass\"]}"],
-    assert_response :internal_server_error
+    assert_response :bad_request
   end
 
   def test_create_fail_with_only_provider_id
@@ -150,6 +144,30 @@ class Api::V2::ProductsControllerTest < ActionController::TestCase
     assert_response :success
     assert_template %w(katello/api/v2/common/update katello/api/v2/layouts/resource)
     assert_equal assigns[:product].name, 'New Name'
+  end
+
+  def test_update_product_requires_name
+    get :update, :id => @product.cp_id, :product => {:name => nil}
+
+    assert_response :unprocessable_entity
+    assert_template %w(katello/api/v2/common/update katello/api/v2/layouts/resource)
+    assert_equal assigns[:product].name, nil
+  end
+
+  def test_update_sync_plan
+    put :update, :id => @product.cp_id, :product => {:sync_plan_id => 1}
+
+    assert_response :success
+    assert_template %w(katello/api/v2/common/update katello/api/v2/layouts/resource)
+    assert_equal assigns[:product].sync_plan_id, 1
+  end
+
+  def test_remove_sync_plan
+    put :update, :id => @product.cp_id, :product => {:sync_plan_id => nil}
+
+    assert_response :success
+    assert_template %w(katello/api/v2/common/update katello/api/v2/layouts/resource)
+    assert_equal assigns[:product].sync_plan_id, nil
   end
 
   def test_update_protected

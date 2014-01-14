@@ -14,25 +14,24 @@ module Katello
   class Api::V2::ProductsController < Api::V2::ApiController
 
     before_filter :find_provider, :only => [:create]
-    before_filter :find_organization, :only => [:index, :show]
+    before_filter :find_organization, :only => [:index, :update]
     before_filter :find_product, :only => [:show, :update, :destroy]
     before_filter :authorize
 
     def_param_group :product do
-      param :product, Hash, :action_aware => true do
-        param :name, String, :required => true
-        param :label, String, :required => false
-        param :provider_id, :number, :required => true, :desc => "Provider the product belongs to"
-        param :description, String, :desc => "Product description"
-        param :gpg_key_id, :number, :desc => "Identifier of the GPG key"
-      end
+      param :name, String, :required => true
+      param :label, String, :required => false
+      param :provider_id, :number, :required => true, :desc => "Provider the product belongs to"
+      param :description, String, :desc => "Product description"
+      param :gpg_key_id, :number, :desc => "Identifier of the GPG key"
+      param :sync_plan_id, :number, :desc => "Plan numeric identifier"
     end
 
   def rules
     index_test = lambda { Product.any_readable?(@organization) }
     create_test = lambda { @provider.nil? ? true : Product.creatable?(@provider) }
     read_test  = lambda { @product.readable? }
-    edit_test  = lambda { @product.editable? }
+    edit_test  = lambda { @product.editable? || @product.syncable? }
 
     {
       :index => index_test,
@@ -75,9 +74,11 @@ module Katello
     end
 
     api :PUT, "/products/:id", "Updates a product"
-    param :id, :number, :desc => "product numeric identifier"
+    param :id, :number, :desc => "product numeric identifier", :required => true, :allow_nil => false
     param_group :product
     def update
+      fail HttpErrors::BadRequest, _("Red Hat products cannot be updated.") if @product.redhat?
+
       reset_gpg_keys = (product_params[:gpg_key_id] != @product.gpg_key_id)
       @product.reset_repo_gpgs! if reset_gpg_keys
 
@@ -101,7 +102,7 @@ module Katello
     end
 
     def find_product
-      @product = Product.find_by_cp_id(params[:id], params[:organization_id]) if params[:id]
+      @product = Product.find_by_cp_id(params[:id]) if params[:id]
     end
 
     def search_products(options)
@@ -133,7 +134,7 @@ module Katello
     end
 
     def product_params
-      params.require(:product).permit(:name, :label, :provider_id, :gpg_key_id, :description)
+      params.require(:product).permit(:name, :label, :description, :provider_id, :gpg_key_id, :sync_plan_id)
     end
 
     def enabled_filter
