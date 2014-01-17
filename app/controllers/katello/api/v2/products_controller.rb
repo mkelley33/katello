@@ -45,7 +45,6 @@ module Katello
     api :GET, "/products", "List of organization products"
     api :GET, "/subscriptions/:subscription_id/products", "List of subscription products in an organization"
     api :GET, "/organizations/:organization_id/products", "List of products in an organization"
-    param :enabled, String, :desc => "Filter enabled products"
     param :name, :identifier, :desc => "Filter products by name"
     param :organization_id, :identifier, :desc => "Filter products by organization name or label", :required => true
     param :subscription_id, :number, :desc => "Filter products by subscription identifier"
