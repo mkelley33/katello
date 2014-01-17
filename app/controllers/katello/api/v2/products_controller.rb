@@ -52,10 +52,13 @@ module Katello
     param_group :search, Api::V2::ApiController
     def index
       filters = [filter_terms(product_ids_filter)]
-      filters << filter_terms(enabled_filter) if enabled_filter.present?
+      # TODO: support enabled filter in products. Product currently has
+      # an enabled method, and elasticsearch has mappings, but filtering
+      # errors. See elasticsearch output.
+      # filters << filter_terms(enabled_filter) if enabled_filter.present?
       options = sort_params.merge(:filters => filters, :load_records => true)
-
-      respond(:collection => search_products(options))
+      @collection = item_search(Product, params, options)
+      respond_for_index(:collection => @collection)
     end
 
     api :POST, "/products", "Create a product"
@@ -102,25 +105,6 @@ module Katello
 
     def find_product
       @product = Product.find_by_cp_id(params[:id], nil) if params[:id]
-    end
-
-    def search_products(options)
-      empty_results = {:results => []}
-
-      # Don't orchestrate a big search unless we have product ids
-      filters = options[:filters]
-      return empty_results unless filters.find { |filter| filter[:terms] && filter[:terms][:id].to_a.count != 0 }
-
-      # First, search the index to get product ids and counts
-      items = item_search(Product, params, options)
-      return empty_results unless items[:results].any?
-
-      # Then query AR for products so that response will have association's data as well
-      items[:results] = Product.where(:id => items[:results].map(&:id))
-        .select("#{Katello::Product.table_name}.*, #{Katello::Provider.table_name}.name AS provider_name")
-        .joins(:provider).all
-
-      items
     end
 
     def product_ids_filter
