@@ -15,7 +15,7 @@ module Katello
 
     before_filter :find_provider, :only => [:create]
     before_filter :find_organization, :only => [:index]
-    before_filter :find_product, :only => [:update, :destroy]
+    before_filter :find_product, :only => [:update, :destroy, :show]
     before_filter :authorize
 
     def_param_group :product do
@@ -72,8 +72,7 @@ module Katello
     api :GET, "/products/:id", "Show a product"
     param :id, :number, :desc => "product numeric identifier", :required => true
     def show
-      @product = find_product(params[:id])
-      respond(:resource => @product)
+      respond_for_show(:resource => @product)
     end
 
     api :PUT, "/products/:id", "Updates a product"
